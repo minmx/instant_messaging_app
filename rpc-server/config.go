@@ -1,3 +1,3 @@
 type Config struct{
-	mysqlPw string "passWord123"
+	MysqlPw string "passWord123"
 }
