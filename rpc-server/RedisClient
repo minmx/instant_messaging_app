@@ -32,21 +32,49 @@ type Message struct {
 }
 
 func (c *RedisClient) SaveMessage(ctx context.Context, roomID string, message *Message) error {
-    // Marshal the Go struct into JSON bytes
     text, err := json.Marshal(message)
     if err != nil {
        return err
     }
 
     member := &redis.Z{
-       Score:  message.Timestamp, // The sort key
-       Member: text, // Data
+       Score:  message.Timestamp,
+       Member: text,
     }
 
-    _, err = c.cli.ZAdd(ctx, roomID, *member).Result()
+    e, err = c.cli.ZAdd(ctx, roomID, *member).Result()
     if err != nil {
        return err
     }
 
     return nil
+}
+
+func (c *RedisClient) GetMessage(ctx context.Context, roomID string, start, end int64, reverse bool) ([]*Message, error ) {
+    var (
+        strMessages []string
+        messages []*Message
+        err error
+    )
+    if reverse {
+        strMessages, err = c.cli.ZRevRange(ctx, roomID, start, end).Result()
+        if err != nil {
+            return nil, err
+        }
+    }
+    else {
+        strMessages, err = c.cli.ZRange(ctx, roomID, start, end).Result()
+        if err != nil {
+            return nil, err
+        }
+    }
+    for _, msg := range strMessages {
+        temp := &Message{}
+        err := json.Unmarshal([]byte(msg), temp)
+        if err != nil {
+            return nil, err
+        }
+        messages = append(messages, temp)
+    }
+    return messages, nil
 }
