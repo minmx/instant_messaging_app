@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"math/rand"
-
+	"strings"
 	"github.com/TikTokTechImmersion/assignment_demo_2023/rpc-server/kitex_gen/rpc"
 )
 
@@ -29,3 +29,23 @@ func areYouLucky() (int32, string) {
 		return 500, "oops"
 	}
 }
+
+func GetRoomID(chat string) (string, error){
+	var roomID string
+
+	lowercase := strings.ToLower(chat)
+	senders := strings.split(lowercase, ":")
+	if len(senders) != 2 {
+		err := fmt.Errorf("Invalid Chat ID '%s', required format A1:A2, current format: ", chat)
+		return "", err
+	}
+	sender1, sender2 := senders[0], senders[1]
+	if comp := strings.compare(sender1, sender2); comp == 1 {
+		roomID = fmt.Sprintf("%s:%s", sender2, sender1)
+	}
+	else {
+		roomID = fmt.Sprintf("%s:%s", sender1, sender2)
+	}
+	return roomID, nil
+}
+
