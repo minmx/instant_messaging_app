@@ -6,7 +6,7 @@ import (
 )
 
 type RedisClient struct {
-    cli *redis.Client
+    client *redis.Client
 }
 
 func (c *RedisClient) InitClient(ctx context.Context, address, password string) error {
@@ -21,7 +21,7 @@ func (c *RedisClient) InitClient(ctx context.Context, address, password string) 
        return err
     }
 
-    c.cli = r
+    c.client = r
     return nil
 }
 
@@ -42,7 +42,7 @@ func (c *RedisClient) SaveMessage(ctx context.Context, roomID string, message *M
        Member: text,
     }
 
-    e, err = c.cli.ZAdd(ctx, roomID, *member).Result()
+    e, err = c.client.ZAdd(ctx, roomID, *member).Result()
     if err != nil {
        return err
     }
@@ -57,13 +57,13 @@ func (c *RedisClient) GetMessage(ctx context.Context, roomID string, start, end 
         err error
     )
     if reverse {
-        strMessages, err = c.cli.ZRevRange(ctx, roomID, start, end).Result()
+        strMessages, err = c.client.ZRevRange(ctx, roomID, start, end).Result()
         if err != nil {
             return nil, err
         }
     }
     else {
-        strMessages, err = c.cli.ZRange(ctx, roomID, start, end).Result()
+        strMessages, err = c.client.ZRange(ctx, roomID, start, end).Result()
         if err != nil {
             return nil, err
         }
