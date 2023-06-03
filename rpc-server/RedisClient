@@ -11,9 +11,9 @@ type RedisClient struct {
 
 func (c *RedisClient) InitClient(ctx context.Context, address, password string) error {
     r := redis.NewClient(&redis.Options{
-       Addr:     address,
-       Password: password, // no password set
-       DB:       0,        // use default DB
+       Addr: address,
+       Password: password,
+       DB: 0,
     })
 
     // test connection
@@ -26,9 +26,9 @@ func (c *RedisClient) InitClient(ctx context.Context, address, password string) 
 }
 
 type Message struct {
-    Sender string  `json:"sender"`
-    Message string  `json:"message"`
-    Timestamp int64   `json:"timestamp"`
+    Sender string `json:"sender"`
+    Message string `json:"message"`
+    Timestamp int64 `json:"timestamp"`
 }
 
 func (c *RedisClient) SaveMessage(ctx context.Context, roomID string, message *Message) error {
