@@ -9,7 +9,6 @@ services:
       - SERVICE_TAGS=rpc
     depends_on:
       - etcd
-      # - mysql
       - redis
   http-server:
     build: http-server
@@ -26,6 +25,12 @@ services:
     command: ["etcd", "--advertise-client-urls", "http://etcd:2379", "--listen-client-urls", "http://0.0.0.0:2379"]
     ports:
       - "2379:2379"
+  redis:
+    image: 'bitnami/redis:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - "6379:6379"
   # mysql:
   #   image: mysql:8.0
   #   restart: always
@@ -34,9 +39,3 @@ services:
   #   environment:
   #     - ''
   #     - ''
-  redis:
-    image: 'bitnami/redis:latest'
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
-    ports:
-      - "6379:6379"
