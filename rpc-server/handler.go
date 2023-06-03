@@ -42,13 +42,15 @@ func GetRoomID(chat string) (string, error){
 		err := fmt.Errorf("Invalid Chat ID '%s', required format A1:A2, current format: ", chat)
 		return "", err
 	}
+
 	sender1, sender2 := senders[0], senders[1]
+	//
 	if comp := strings.compare(sender1, sender2); comp == 1 {
 		roomID = fmt.Sprintf("%s:%s", sender2, sender1)
-	}
-	else {
+	} else {
 		roomID = fmt.Sprintf("%s:%s", sender1, sender2)
 	}
+	
 	return roomID, nil
 }
 
@@ -75,7 +77,7 @@ func (s *IMServiceImpl) Send(ctx context.Context, req *rpc.SendRequest) (*rpc.Se
 	message := &Message{
 		Message: req.Message.GetText(),
 		Sender: req.Message.GetSender(),
-		Timestamp: timestamp
+		Timestamp: timestamp,
 	}
 
 	roomID, err := GetRoomID(req.Message.GetChat())
@@ -120,7 +122,7 @@ func (s * IMServiceImpl) Pull(ctx context.Context, req *rpc.PullRequest) (*rpc.P
 			Chat: req.GetChat(),
             Text: msg.Message,
             Sender: msg.Sender,
-            SendTime: msg.Timestamp
+            SendTime: msg.Timestamp,
         }
 	    respMessages = append(respMessages, temp)
 		counter += 1
