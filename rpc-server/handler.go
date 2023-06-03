@@ -80,7 +80,7 @@ func (s *IMServiceImpl) Send(ctx context.Context, req *rpc.SendRequest) (*rpc.Se
 		Timestamp: timestamp,
 	}
 
-	roomID, err := getRoomID(req.Message.GetChat())
+	roomID, err := GetRoomID(req.Message.GetChat())
 	if err != nil {
 		return nil, err
 	}
