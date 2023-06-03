@@ -40,7 +40,7 @@ func (c *RedisClient) SaveMessage(ctx context.Context, roomID string, message *M
     }
 
     member := &redis.Z{
-        Score:  float64(message.Timestamp,)
+        Score:  float64(message.Timestamp),
         Member: text,
     }
 
@@ -63,8 +63,7 @@ func (c *RedisClient) GetMessage(ctx context.Context, roomID string, start, end 
         if err != nil {
             return nil, err
         }
-    }
-    else {
+    } else {
         strMessages, err = c.client.ZRange(ctx, roomID, start, end).Result()
         if err != nil {
             return nil, err
