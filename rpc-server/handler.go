@@ -2,11 +2,12 @@ package main
 
 import (
 	"context"
-	"math/rand"
+	"fmt"
 	"strings"
 	"time"
-	// "github.com/TikTokTechImmersion/assignment_demo_2023/rpc-server/kitex_gen/rpc"
-	"../kitex_gen/rpc"
+
+	"github.com/TikTokTechImmersion/assignment_demo_2023/rpc-server/kitex_gen/rpc"
+	// "../kitex_gen/rpc"
 )
 
 // IMServiceImpl implements the last service interface defined in the IDL.
@@ -77,7 +78,10 @@ func (s *IMServiceImpl) Send(ctx context.Context, req *rpc.SendRequest) (*rpc.Se
 		Timestamp: timestamp
 	}
 
-	roomID := GetRoomID(req.Message.GetChat())
+	roomID, err := GetRoomID(req.Message.GetChat())
+	if err != nil {
+		return nil, err
+	}
 
 	err := rdb.SaveMessage(ctx, roomID, message)
 	if err != nil {
@@ -88,7 +92,7 @@ func (s *IMServiceImpl) Send(ctx context.Context, req *rpc.SendRequest) (*rpc.Se
     return resp, nil
 }
 
-func (s * IMServiceImpl) Pull(ctx context.Context, req rpc.PullRequest) (*rpc.PullResponse, error){
+func (s * IMServiceImpl) Pull(ctx context.Context, req *rpc.PullRequest) (*rpc.PullResponse, error){
 	roomID, err := GetRoomID(req.GetChat())
 	if err != nil {
 		return nil, err
@@ -102,8 +106,8 @@ func (s * IMServiceImpl) Pull(ctx context.Context, req rpc.PullRequest) (*rpc.Pu
 		return nil, err
 	}
 
-	respMessage := make([]*rpc.Message, 0)
-	var counter int32 = 0
+	respMessages := make([]*rpc.Message, 0)
+	var counter int64 = 0
 	var nextCursor int64 = 0
 	hasMore := false
 	for _, msg := range messages {
@@ -117,7 +121,11 @@ func (s * IMServiceImpl) Pull(ctx context.Context, req rpc.PullRequest) (*rpc.Pu
             Text: msg.Message,
             Sender: msg.Sender,
             SendTime: msg.Timestamp
-       }
+        }
+	    respMessages = append(respMessages, temp)
+		counter += 1
+	}
+
 	   resp := rpc.NewPullResponse()
 	   resp.Messages = respMessage
 	   resp.Code = 0
@@ -126,5 +134,4 @@ func (s * IMServiceImpl) Pull(ctx context.Context, req rpc.PullRequest) (*rpc.Pu
 	   resp.NextCursor = &nextCursor
 
 	   return resp, nil
-	}
 }
