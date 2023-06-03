@@ -1,2 +1,3 @@
 .DS_Store
 rpc-server/config.go
+rpc-server/db_config.go
