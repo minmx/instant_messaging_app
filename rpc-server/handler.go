@@ -45,7 +45,7 @@ func GetRoomID(chat string) (string, error){
 
 	sender1, sender2 := senders[0], senders[1]
 	//
-	if comp := strings.compare(sender1, sender2); comp == 1 {
+	if comp := strings.Compare(sender1, sender2); comp == 1 {
 		roomID = fmt.Sprintf("%s:%s", sender2, sender1)
 	} else {
 		roomID = fmt.Sprintf("%s:%s", sender1, sender2)
@@ -54,7 +54,7 @@ func GetRoomID(chat string) (string, error){
 	return roomID, nil
 }
 
-func ValidateRequest(req *rpc.SendRequest){
+func ValidateRequest(req *rpc.SendRequest) error {
 	senders := strings.Split(req.Message.Chat, ":")
 	if len(senders) != 2 {
 		err := fmt.Errorf("Invalid Chat ID '%s', required format A1:A2, current format: ", req.Message.GetChat())
@@ -80,12 +80,12 @@ func (s *IMServiceImpl) Send(ctx context.Context, req *rpc.SendRequest) (*rpc.Se
 		Timestamp: timestamp,
 	}
 
-	roomID, err := GetRoomID(req.Message.GetChat())
+	roomID, err := getRoomID(req.Message.GetChat())
 	if err != nil {
 		return nil, err
 	}
 
-	err := rdb.SaveMessage(ctx, roomID, message)
+	err = rdb.SaveMessage(ctx, roomID, message)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func (s * IMServiceImpl) Pull(ctx context.Context, req *rpc.PullRequest) (*rpc.P
 	var nextCursor int64 = 0
 	hasMore := false
 	for _, msg := range messages {
-		if counter+1 > req.GetLimit() {
+		if counter+1 > int64(req.GetLimit()) {
 			hasMore = true
 			nextCursor = end
 			break
@@ -129,7 +129,7 @@ func (s * IMServiceImpl) Pull(ctx context.Context, req *rpc.PullRequest) (*rpc.P
 	}
 
 	   resp := rpc.NewPullResponse()
-	   resp.Messages = respMessage
+	   resp.Messages = respMessages
 	   resp.Code = 0
 	   resp.Msg = "success"
 	   resp.HasMore = &hasMore
